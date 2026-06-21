@@ -15,9 +15,8 @@ function doPost(e) {
 
     const data = JSON.parse(e.postData.contents);
     action = data.action || "unknown";
-    const verifiedProfile = getVerifiedLineProfile_(data.accessToken);
-    userId = verifiedProfile.userId || "";
-    displayName = verifiedProfile.displayName || data.displayName || "";
+    userId = data.userId || "";
+    displayName = data.displayName || "";
     page = data.page || "unknown";
     const payload = data.payload || data;
 
@@ -32,10 +31,7 @@ function doPost(e) {
     switch (action) {
       case "search":
         result = searchWarrant(payload.searchType, payload.keyword);
-        // เก็บคำค้นหาและประเภทการค้นหาลงใน detail
-        const searchDetail = `Type: ${payload.searchType}, Keyword: ${payload.keyword}`;
-        logActivity(userId, displayName, page, action, authStatus, result.success === false ? `${searchDetail} (failed: ${result.error || "unknown"})` : `${searchDetail} (success)`);
-        return jsonResponse_(result);
+        break;
       case "getPending":
         result = getPendingProcess();
         break;
@@ -47,9 +43,6 @@ function doPost(e) {
         break;
       case "markRevoked":
         result = markProcessRevoked(payload.rowId, userId);
-        break;
-      case "markForwarded":
-        result = markProcessForwarded(payload.rowId, userId);
         break;
       default:
         result = { success: false, error: "Invalid action" };
